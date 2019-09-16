@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
         if(resultCalculated && !isDigit(buttonText)){
             resultCalculated = false;
         }
-
         //If an operator is pressed before a digit, nothing happens (as intended for now).
         if(inputText.getText().toString().equals("") && !isDigit(buttonText)){
             //do nothing for now. Handle negatives in the future
