@@ -10,12 +10,13 @@ import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private double results = 0.0;
+    private double results = 0.00;
     private TextView inputText;
     private TextView resultText;
     private String lastOperation = "";
     private boolean resultCalculated = false;
-    private DecimalFormat format = new DecimalFormat("#.##");
+    private boolean operating = false;
+    private DecimalFormat format = new DecimalFormat("#.00");
 
 
     @Override
@@ -28,38 +29,41 @@ public class MainActivity extends AppCompatActivity {
         resultText.setText("");
     }
 
-    // TODO: 9/10/2019 figure out a way so that only one operarator can be typed at once.
-    // TODO: 9/11/2019 manage input so that its away from the results and simplify equation 
     public void onClickListener(View view){
         String buttonText = (String) ((Button) view).getText();
 
-        //makes sure that if an operator is selected after the results are shown, it'll perform the math.
+        //Makes sure that if a number is pressed after the = button is pressed, it will start a new
+        //calculation whereas if an operator is pressed, it will continue on that operation.
         if(resultCalculated && !isDigit(buttonText)){
             resultCalculated = false;
         }
-        //this prevents the user typing an operator before a number. Needs to be updated to accept - operator. Currently working fine.
+
+        //If an operator is pressed before a digit, nothing happens (as intended for now).
         if(inputText.getText().toString().equals("") && !isDigit(buttonText)){
-
-        } else if(isDigit(buttonText) && resultCalculated){ //after the results are shown, if the user selects a number, it'd delete said results and set the view with the new number
-            inputText.setText("");
-            inputText.setText(inputText.getText() + buttonText);
-            resultCalculated = false;
-        } else if(isDigit(buttonText)){ //if input is a digit, it gets typed in the field and the operation is set to empty
-            inputText.setText(inputText.getText() + buttonText);
-            lastOperation = "";
-        } else if(!isDigit(buttonText) && !buttonText.equals(lastOperation) && lastOperation.equals("")){ //if its an operation we check to see if it is equal to the last operation and proceed to set said last operation if its not.
-            inputText.setText(inputText.getText().toString() + buttonText);
-            lastOperation = buttonText;
-        } else if(!isDigit(buttonText) && !buttonText.equals(lastOperation) && !lastOperation.equals("")){ //if its an operation we check to see if it is equal to the last operation and proceed to set said last operation if its not.
-            String str = inputText.getText().toString().substring(0, inputText.getText().toString().length() - 1);
-            System.out.println("POST " + str);
-            inputText.setText(str + buttonText);
-            lastOperation = buttonText;
-        }  else if(!isDigit(buttonText) && buttonText.equals(lastOperation)){
-
+            //do nothing for now. Handle negatives in the future
+        } else if(isDigit(buttonText)){ //if a digit is pressed, it'd decide whether it is a new operation or the same using the boolean above calculated;
+            if(resultCalculated){ //new operation
+                resultText.setText("");
+                inputText.setText("");
+                inputText.setText(inputText.getText() + buttonText);
+                resultCalculated = false;
+                operating = true;
+            } else{ //same operation
+                inputText.setText(inputText.getText() + buttonText);
+                operating = true;
+            }
+        } else if(!isDigit(buttonText)){
+            if(lastOperation.equals("")) { //adds the operator if none was added before
+                inputText.setText(inputText.getText().toString() + buttonText);
+                lastOperation = buttonText;
+                operating = false;
+            } else if(operating && buttonText.equals(lastOperation)) { //adds operator only if it is the same type that was added before. In other words, one operation can only handle one operator.
+                inputText.setText(inputText.getText().toString() + buttonText);
+                operating = false;
+            }
         }
-
     }
+    //Handler for the = button
     public void onEqualsClicked(View view){
         handleEquals(inputText.getText().toString());
         resultText.setText(String.valueOf(results));
@@ -68,25 +72,21 @@ public class MainActivity extends AppCompatActivity {
         lastOperation = "";
         resultCalculated = true;
     }
+    //Handles the clear button. It sets all values to the default/0
     public void onClear(View view){
         inputText.setText("");
-        resultText.setText("");
+        resultText.setText("0");
         results = 0.0;
+        lastOperation = "";
     }
 
-    // TODO: 9/11/2019 rework the handle equals to do the math after 2 numbers and an operator are typed 
+    //This function handles the equation passed on after the = button is pressed.
     public double handleEquals(String equation) {
         if (equation.contains("+")) {
             String[] numbers = equation.split("\\+");
             results = Double.parseDouble(numbers[0]);
             for (int i = 1; i < numbers.length; i++) {
                 results += Double.parseDouble(numbers[i]);
-            }
-        } else if(equation.contains("-")) {
-            String[] numbers = equation.split("-");
-            results = Double.parseDouble(numbers[0]);
-            for (int i = 1; i < numbers.length; i++) {
-                results -= Double.parseDouble(numbers[i]);
             }
         } else if(equation.contains("x")) {
             String[] numbers = equation.split("x");
@@ -98,19 +98,33 @@ public class MainActivity extends AppCompatActivity {
                 String[] numbers = equation.split("/");
             results = Double.parseDouble(numbers[0]);
                 for (int i = 1; i < numbers.length; i++) {
-                    results /= Double.parseDouble(numbers[i]);
+                    if(Double.parseDouble(numbers[i]) == 0){ //if a number is divided by 0, return 0 instead of crashing.
+                        results = 0.00;
+                        return results;
+                    } else{
+                        results /= Double.parseDouble(numbers[i]);
+                    }
                 }
+        } else if(equation.contains("-")) {
+            String minusEquation;
+            if (equation.charAt(0) == '-') {
+                minusEquation = "0" + equation;
+            } else {
+                minusEquation = equation;
             }
-
+            String[] numbers = minusEquation.split("-");
+            results = Double.parseDouble(numbers[0]);
+            for (int i = 1; i < numbers.length; i++) {
+                results -= Double.parseDouble(numbers[i]);
+            }
+        }
         results = Double.parseDouble(format.format(results));
         return results;
     }
 
+    //This function takes a string and it returns true if it is a digit.
+    // In this case, the strings passed will be 1 char long.
     public boolean isDigit(String str){
-        if(str.matches(".*\\d.*")){
-            return true;
-        } else{
-            return false;
-        }
+        return str.matches(".*\\d.*");
     }
 }
