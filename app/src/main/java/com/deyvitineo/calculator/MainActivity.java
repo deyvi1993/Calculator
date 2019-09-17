@@ -10,13 +10,14 @@ import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private double results = 0.00;
+    private double results = 0;
     private TextView inputText;
     private TextView resultText;
     private String lastOperation = "";
     private boolean resultCalculated = false;
     private boolean operating = false;
-    private DecimalFormat format = new DecimalFormat("#.00");
+    private DecimalFormat formatter = new DecimalFormat("##.##");
+    private boolean divideByZero = false;
 
 
     @Override
@@ -65,17 +66,26 @@ public class MainActivity extends AppCompatActivity {
     //Handler for the = button
     public void onEqualsClicked(View view){
         handleEquals(inputText.getText().toString());
-        resultText.setText(String.valueOf(results));
-        inputText.setText(String.valueOf(results));
-        results = 0.0;
-        lastOperation = "";
-        resultCalculated = true;
+        if(divideByZero == true){
+            inputText.setText("Cannot divide by 0");
+            resultText.setText(String.valueOf(results));
+            results = 0;
+            lastOperation = "";
+            resultCalculated = true;
+            divideByZero = false;
+        } else {
+            resultText.setText(String.valueOf(results));
+            inputText.setText(String.valueOf(results));
+            results = 0;
+            lastOperation = "";
+            resultCalculated = true;
+        }
     }
     //Handles the clear button. It sets all values to the default/0
     public void onClear(View view){
         inputText.setText("");
         resultText.setText("0");
-        results = 0.0;
+        results = 0;
         lastOperation = "";
     }
 
@@ -98,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
             results = Double.parseDouble(numbers[0]);
                 for (int i = 1; i < numbers.length; i++) {
                     if(Double.parseDouble(numbers[i]) == 0){ //if a number is divided by 0, return 0 instead of crashing.
-                        results = 0.00;
+                        results = 0;
+                        divideByZero = true;
                         return results;
                     } else{
                         results /= Double.parseDouble(numbers[i]);
@@ -117,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 results -= Double.parseDouble(numbers[i]);
             }
         }
-        results = Double.parseDouble(format.format(results));
+        results = Double.parseDouble(formatter.format(results));
         return results;
     }
 
