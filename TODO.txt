@@ -2,5 +2,4 @@ TODO 9/16/2019:
 
 *Add a backspace button.
 *Add a dot for decimals.
-*Work on UI design.
-*Add alert dialog when dividing by 0.
+*Work on UI design / screen compatability
