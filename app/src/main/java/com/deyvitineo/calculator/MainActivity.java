@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
     private String lastOperation = "";
     private boolean resultCalculated = false;
     private boolean operating = false;
-    private DecimalFormat formatter = new DecimalFormat("##.##");
+    private DecimalFormat formatter = new DecimalFormat("#.##");
     private boolean divideByZero = false;
 
 
@@ -66,16 +66,17 @@ public class MainActivity extends AppCompatActivity {
     //Handler for the = button
     public void onEqualsClicked(View view){
         handleEquals(inputText.getText().toString());
+        System.out.println(results);
         if(divideByZero == true){
             inputText.setText("Cannot divide by 0");
-            resultText.setText(String.valueOf(results));
+            resultText.setText(String.valueOf(formatter.format(results)));
             results = 0;
             lastOperation = "";
             resultCalculated = true;
             divideByZero = false;
         } else {
-            resultText.setText(String.valueOf(results));
-            inputText.setText(String.valueOf(results));
+            resultText.setText(String.valueOf(formatter.format(results)));
+            inputText.setText(String.valueOf(formatter.format(results)));
             results = 0;
             lastOperation = "";
             resultCalculated = true;
@@ -128,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
                 results -= Double.parseDouble(numbers[i]);
             }
         }
-        results = Double.parseDouble(formatter.format(results));
         return results;
     }
 
