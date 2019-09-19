@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         //If an operator is pressed before a digit, nothing happens (as intended for now).
         if(inputText.getText().toString().equals("") && !isDigit(buttonText)){
             //do nothing for now. Handle negatives in the future
-        } else if(isDigit(buttonText)){ //if a digit is pressed, it'd decide whether it is a new operation or the same using the boolean above calculated;
+        } else if(isDigit(buttonText) && !buttonText.equals("backspace")){ //if a digit is pressed, it'd decide whether it is a new operation or the same using the boolean above calculated;
             if(resultCalculated){ //new operation
                 resultText.setText("");
                 inputText.setText("");
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 inputText.setText(inputText.getText() + buttonText);
                 operating = true;
             }
-        } else if(!isDigit(buttonText)){
+        } else if(!isDigit(buttonText) && !buttonText.equals("backspace")){
             if(lastOperation.equals("")) { //adds the operator if none was added before
                 inputText.setText(inputText.getText().toString() + buttonText);
                 lastOperation = buttonText;
@@ -60,6 +60,13 @@ public class MainActivity extends AppCompatActivity {
             } else if(operating && buttonText.equals(lastOperation)) { //adds operator only if it is the same type that was added before. In other words, one operation can only handle one operator.
                 inputText.setText(inputText.getText().toString() + buttonText);
                 operating = false;
+            }
+        } else if(buttonText.equals("backspace") && !inputText.getText().toString().equals("")){
+            if(inputText.getText().toString().length() == 1){
+                inputText.setText("");
+            } else{
+                String input = inputText.getText().toString().substring(0, inputText.getText().toString().length()-1);
+                inputText.setText(input);
             }
         }
     }
